@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Executive Speaking Timer & Alarm</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0F172A">
+  <style>
+    :root {
+      --bg-primary: #0F172A;
+      --bg-card: #1E293B;
+      --bg-input: #334155;
+      --accent-cyan: #06B6D4;
+      --accent-amber: #F59E0B;
+      --accent-emerald: #10B981;
+      --text-main: #F8FAFC;
+      --text-muted: #94A3B8;
+      --border-color: #475569;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 480px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 20px;
+      color: var(--accent-cyan);
+      letter-spacing: 0.5px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      background: var(--bg-primary);
+      padding: 4px;
+      border-radius: 8px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .tab-btn.active {
+      background: var(--bg-card);
+      color: var(--accent-cyan);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .section {
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-input);
+      color: var(--text-main);
+      font-size: 1rem;
+      outline: none;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--accent-cyan);
+    }
+
+    .timer-display {
+      font-size: 3.5rem;
+      font-weight: 800;
+      text-align: center;
+      margin: 20px 0;
+      font-family: monospace;
+      color: var(--text-main);
+      letter-spacing: 2px;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    button.action-btn {
+      flex: 1;
+      padding: 14px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .btn-primary { background: var(--accent-cyan); color: #0F172A; }
+    .btn-warning { background: var(--accent-amber); color: #0F172A; }
+    .btn-success { background: var(--accent-emerald); color: #0F172A; }
+
+    button.action-btn:hover {
+      opacity: 0.9;
+    }
+
+    .status-bar {
+      margin-top: 20px;
+      padding: 10px;
+      border-radius: 6px;
+      background: var(--bg-primary);
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .status-badge {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--border-color);
+    }
+
+    .status-badge.active { background: var(--accent-emerald); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>SPEAKING TIMER & ALARM</h1>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('timer')">Countdown Timer</button>
+      <button class="tab-btn" onclick="switchTab('alarm')">Scheduled Alarm</button>
+    </div>
+
+    <!-- Countdown Timer Section -->
+    <div id="timer-section" class="section active">
+      <div class="form-group">
+        <label for="timer-duration">Duration (Minutes)</label>
+        <input type="number" id="timer-duration" value="5" min="1">
+      </div>
+      <div class="form-group">
+        <label for="speak-interval">Voice Interval (Seconds)</label>
+        <input type="number" id="speak-interval" value="15" min="5">
+      </div>
+      <div class="timer-display" id="timer-display">05:00</div>
+      <div class="btn-group">
+        <button class="action-btn btn-primary" id="start-timer-btn" onclick="toggleTimer()">Start Timer</button>
+        <button class="action-btn btn-warning" onclick="resetTimer()">Reset</button>
+      </div>
+    </div>
+
+    <!-- Scheduled Alarm Section -->
+    <div id="alarm-section" class="section">
+      <div class="form-group">
+        <label for="alarm-time">Set Date & Time</label>
+        <input type="datetime-local" id="alarm-time">
+      </div>
+      <div class="form-group">
+        <label for="alarm-msg">Custom Speech Message</label>
+        <input type="text" id="alarm-msg" value="Time for your scheduled event">
+      </div>
+      <div class="btn-group">
+        <button class="action-btn btn-success" onclick="setAlarm()">Set Alarm</button>
+        <button class="action-btn btn-warning" onclick="testSpeech()">Test Speech</button>
+      </div>
+    </div>
+
+    <div class="status-bar">
+      <span>Wake Lock: <span id="wake-status">Inactive</span></span>
+      <span class="status-badge" id="wake-badge"></span>
+    </div>
+  </div>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./sw.js')
+        .then(() => console.log('Service Worker Registered'))
+        .catch(err => console.log('Service Worker Failed', err));
+    }
+
+    let timerInterval = null;
+    let totalSeconds = 300;
+    let remainingSeconds = 300;
+    let wakeLock = null;
+
+    function switchTab(tab) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+      if (tab === 'timer') {
+        document.querySelectorAll('.tab-btn')[0].classList.add('active');
+        document.getElementById('timer-section').classList.add('active');
+      } else {
+        document.querySelectorAll('.tab-btn')[1].classList.add('active');
+        document.getElementById('alarm-section').classList.add('active');
+      }
+    }
+
+    async function requestWakeLock() {
+      try {
+        if ('wakeLock' in navigator) {
+          wakeLock = await navigator.wakeLock.request('screen');
+          document.getElementById('wake-status').innerText = 'Active';
+          document.getElementById('wake-badge').classList.add('active');
+        }
+      } catch (err) {
+        document.getElementById('wake-status').innerText = 'Blocked / Unavailable';
+      }
+    }
+
+    function releaseWakeLock() {
+      if (wakeLock) {
+        wakeLock.release();
+        wakeLock = null;
+        document.getElementById('wake-status').innerText = 'Inactive';
+        document.getElementById('wake-badge').classList.remove('active');
+      }
+    }
+
+    function speak(text) {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = 1.0;
+        window.speechSynthesis.speak(utterance);
+      }
+    }
+
+    function testSpeech() {
+      speak("Speech test successful. Executive Speaking Timer is fully operational.");
+    }
+
+    function updateDisplay() {
+      const mins = Math.floor(remainingSeconds / 60);
+      const secs = remainingSeconds % 60;
+      document.getElementById('timer-display').innerText = 
+        `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    }
+
+    function toggleTimer() {
+      const btn = document.getElementById('start-timer-btn');
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        btn.innerText = 'Start Timer';
+        releaseWakeLock();
+      } else {
+        const durationInput = parseInt(document.getElementById('timer-duration').value) || 5;
+        const intervalSecs = parseInt(document.getElementById('speak-interval').value) || 15;
+        if (remainingSeconds === 0 || remainingSeconds === totalSeconds) {
+          totalSeconds = durationInput * 60;
+          remainingSeconds = totalSeconds;
+        }
+        updateDisplay();
+        requestWakeLock();
+        speak(`Timer started for ${durationInput} minutes`);
+
+        timerInterval = setInterval(() => {
+          remainingSeconds--;
+          updateDisplay();
+
+          if (remainingSeconds > 0 && remainingSeconds % intervalSecs === 0) {
+            const m = Math.floor(remainingSeconds / 60);
+            const s = remainingSeconds % 60;
+            let speakStr = '';
+            if (m > 0 && s > 0) speakStr = `${m} minutes ${s} seconds remaining`;
+            else if (m > 0) speakStr = `${m} minutes remaining`;
+            else speakStr = `${s} seconds remaining`;
+            speak(speakStr);
+          }
+
+          if (remainingSeconds <= 0) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            btn.innerText = 'Start Timer';
+            speak("Time is up! Your timer has completed.");
+            releaseWakeLock();
+          }
+        }, 1000);
+
+        btn.innerText = 'Pause Timer';
+      }
+    }
+
+    function resetTimer() {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        document.getElementById('start-timer-btn').innerText = 'Start Timer';
+      }
+      const durationInput = parseInt(document.getElementById('timer-duration').value) || 5;
+      totalSeconds = durationInput * 60;
+      remainingSeconds = totalSeconds;
+      updateDisplay();
+      releaseWakeLock();
+    }
+  </script>
+</body>
+</html>
